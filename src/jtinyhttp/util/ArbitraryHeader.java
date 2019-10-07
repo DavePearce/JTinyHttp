@@ -29,6 +29,8 @@ public class ArbitraryHeader implements HTTP.Header {
 		this.valueLength = value.length;
 		System.arraycopy(key, 0, bytes, 0, key.length);
 		System.arraycopy(value, 0, bytes, key.length + 2, value.length);
+		bytes[key.length] = ':';
+		bytes[key.length+1] = ' ';
 	}
 
 	public ArbitraryHeader(byte[] bytes, int keyStart, int keyLength, int valueStart, int valueLength) {
