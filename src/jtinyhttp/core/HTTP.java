@@ -9,18 +9,111 @@ import jtinyhttp.util.AbstractRequest;
 
 public class HTTP {
 
+	/**
+	 * Represents an arbitrary connection between a client and server which is
+	 * location agnostic. In other words, this could be either a client connection
+	 * or a server connection.
+	 *
+	 * @author David J. Pearce
+	 *
+	 * @param <S>
+	 * @param <T>
+	 */
+	public interface Connection {
+		/**
+		 * Close this connection.
+		 */
+		public void close() throws IOException;
+	}
+
+	/**
+	 * Represents a connection from a client (which makes requests) to a server
+	 * (which will respond to them).
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
+	public interface ClientConnection extends Connection {
+		/**
+		 * Send a request to the server behind this connection and receive a given
+		 * reply.
+		 *
+		 * @param message
+		 * @return
+		 */
+		public Response send(Request message) throws IOException;
+	}
+
+	/**
+	 * Represents a connection from the server (which responds to requests) to a
+	 * client.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
+	public interface ServerConnection extends Connection {
+		/**
+		 * Send a response to the client behind this connection.
+		 *
+		 * @param message
+		 * @return
+		 */
+		public void send(Response response) throws IOException;
+	}
+
+	/**
+	 * Represents a generic HTTP header.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
 	public interface Header {
+		/**
+		 * Get the key associated with this header.
+		 *
+		 * @return
+		 */
 		public String getKey();
 
+		/**
+		 * Get the value associated with this header.
+		 * @return
+		 */
 		public String getValue();
 
+		/**
+		 * Write this header line to a given output stream.
+		 *
+		 * @param out
+		 * @throws IOException
+		 */
 		public void writeHeaderLine(OutputStream out) throws IOException;
 	}
 
+	/**
+	 * Represents an abstract payload which may be transfered by a request or
+	 * response method.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
 	public interface Entity {
+		/**
+		 * Write this entity to the output stream.
+		 *
+		 * @param out
+		 * @throws IOException
+		 */
 		public void write(OutputStream out) throws IOException;
 	}
 
+	/**
+	 * Represents a generic HTTP message which is either a <code>Request</code> or
+	 * <code>Response</code>.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
 	public interface Message {
 
 		/**
@@ -58,14 +151,6 @@ public class HTTP {
 		 * @param out
 		 */
 		public void write(OutputStream stream) throws IOException;
-
-		/**
-		 * Write the message request line to a given output stream. This gives
-		 * finer-grained control over the process.
-		 *
-		 * @param out
-		 */
-		public void writeRequestLine(OutputStream stream) throws IOException;
 	}
 
 	public enum Method {
@@ -82,14 +167,21 @@ public class HTTP {
 		Method getMethod();
 	}
 
+	/**
+	 * Represents a simple GET request which can be constructed and then sent to the
+	 * server.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
 	public static final class Get extends AbstractRequest {
 
 		public Get(String uri) {
-			super(uri, V1_1, null);
+			super(Method.GET,uri, V1_1, null);
 		}
 
 		public Get(String uri, String version, Entity body) {
-			super(uri, version, body);
+			super(Method.GET, uri, version, body);
 		}
 
 		@Override
@@ -98,10 +190,17 @@ public class HTTP {
 		}
 	}
 
+	/**
+	 * Represents a simple POST request which can be constructed and then sent to the
+	 * server.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
 	public static final class Post extends AbstractRequest {
 
 		public Post(String uri, String version, Entity body) {
-			super(uri, version, body);
+			super(Method.POST, uri, version, body);
 		}
 
 		@Override
@@ -110,6 +209,13 @@ public class HTTP {
 		}
 	}
 
+	/**
+	 * Represents an arbitrary response message which can be returned from the
+	 * server.
+	 *
+	 * @author David J. Pearce
+	 *
+	 */
 	public interface Response extends Message {
 		/**
 		 * Get the status code associated with this response.
@@ -132,10 +238,15 @@ public class HTTP {
 	// ===============================================================
 
 	/**
-	 *
+	 * Informed client that initial part of request has been received and not yet
+	 * rejected. The client should continue by sending remainder of the request or,
+	 * if already completed, ignore this response.
 	 */
 	public static final int CONTINUE = 100;
 
+	/**
+	 * Server is willing to comply with client's request for a change in protocol.
+	 */
 	public static final int SWITCHING_PROTOCOLS = 101;
 
 	public static final int PROCESSING = 102;
@@ -146,16 +257,32 @@ public class HTTP {
 	// 2XX success
 	// ===============================================================
 
+	/**
+	 * Request has succeeded.
+	 */
 	public static final int OK = 200;
 
+	/**
+	 * Request has been completed and a new resource was created.
+	 */
 	public static final int CREATED = 201;
 
+	/**
+	 * Request was accepted for processing, but this has not yet completed.
+	 */
 	public static final int ACCEPTED = 202;
 
 	public static final int NON_AUTHORATIVE_INFORMATION = 203;
 
+	/**
+	 * Server request completed but does not need to return any content.
+	 */
 	public static final int NO_CONTENT = 204;
 
+	/**
+	 * Server requested completed and client should reset its view. This allows for
+	 * clearing forms after user input.
+	 */
 	public static final int RESET_CONTENT = 205;
 
 	public static final int PARTIAL_CONTENT = 206;
@@ -169,8 +296,16 @@ public class HTTP {
 	// ===============================================================
 	// 3XX Redirection
 	// ===============================================================
+	/**
+	 * Request resources corresponds to more than one option. Further negotiation
+	 * required to disambiguate.
+	 */
 	public static final int MULTIPLE_CHOICES = 300;
 
+	/**
+	 * Requested resource has a new URI which is included in the
+	 * <code>Location</code> field.
+	 */
 	public static final int MOVED_PERMANTENTLY = 301;
 
 	public static final int FOUND = 302;

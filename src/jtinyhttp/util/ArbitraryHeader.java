@@ -33,6 +33,25 @@ public class ArbitraryHeader implements HTTP.Header {
 		bytes[key.length+1] = ' ';
 	}
 
+	public ArbitraryHeader(byte[] bytes, int start, int end) {
+		this.bytes = bytes;
+		for (int i = start; i < end; ++i) {
+			if (bytes[i] == ':') {
+				this.keyStart = start;
+				this.keyLength = i - start;
+				// SKIP WHITESPACE
+				while (bytes[i] == ' ') {
+					i = i + 1;
+				}
+				// DONE
+				this.valueStart = i;
+				this.valueLength = end - valueStart;
+				return;
+			}
+		}
+		throw new IllegalArgumentException("invalid header");
+	}
+
 	public ArbitraryHeader(byte[] bytes, int keyStart, int keyLength, int valueStart, int valueLength) {
 		this.bytes = bytes;
 		this.keyStart = keyStart;
