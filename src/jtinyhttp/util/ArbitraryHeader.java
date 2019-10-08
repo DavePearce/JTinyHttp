@@ -1,7 +1,5 @@
 package jtinyhttp.util;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 import jtinyhttp.core.HTTP;
@@ -68,14 +66,6 @@ public class ArbitraryHeader implements HTTP.Header {
 	@Override
 	public String getValue() {
 		return new String(bytes, valueStart, valueLength, StandardCharsets.US_ASCII);
-	}
-
-	@Override
-	public void writeHeaderLine(OutputStream output) throws IOException {
-		int length = (valueStart - keyStart) + valueLength;
-		output.write(bytes, keyStart, length);
-		output.write(13); // CR
-		output.write(10); // LF
 	}
 
 	@Override

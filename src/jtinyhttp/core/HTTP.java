@@ -81,13 +81,6 @@ public class HTTP {
 		 */
 		public String getValue();
 
-		/**
-		 * Write this header line to a given output stream.
-		 *
-		 * @param out
-		 * @throws IOException
-		 */
-		public void writeHeaderLine(OutputStream out) throws IOException;
 	}
 
 	/**
@@ -139,6 +132,15 @@ public class HTTP {
 		public Header getHeader(int i);
 
 		/**
+		 * Add a new header to this message.
+		 *
+		 * @param key
+		 * @param value
+		 * @return
+		 */
+		public Message addHeader(byte[] key, String value);
+
+		/**
 		 * Get the (optional) entity associated with this message.
 		 *
 		 * @return
@@ -146,11 +148,20 @@ public class HTTP {
 		public Entity getBody();
 
 		/**
-		 * Write this message to a given output stream.
+		 * Write the message start line and headers to a given output stream, whilst
+		 * ignoring the trailing empty line.
 		 *
 		 * @param out
 		 */
 		public void write(OutputStream stream) throws IOException;
+
+		/**
+		 * Write the message start line and headers to a given output stream, whilst
+		 * including the trailing empty line.
+		 *
+		 * @param out
+		 */
+		public void writeln(OutputStream stream) throws IOException;
 	}
 
 	public enum Method {
@@ -165,48 +176,6 @@ public class HTTP {
 	 */
 	public interface Request extends Message {
 		Method getMethod();
-	}
-
-	/**
-	 * Represents a simple GET request which can be constructed and then sent to the
-	 * server.
-	 *
-	 * @author David J. Pearce
-	 *
-	 */
-	public static final class Get extends AbstractRequest {
-
-		public Get(String uri) {
-			super(Method.GET,uri, V1_1, null);
-		}
-
-		public Get(String uri, String version, Entity body) {
-			super(Method.GET, uri, version, body);
-		}
-
-		@Override
-		public Method getMethod() {
-			return Method.GET;
-		}
-	}
-
-	/**
-	 * Represents a simple POST request which can be constructed and then sent to the
-	 * server.
-	 *
-	 * @author David J. Pearce
-	 *
-	 */
-	public static final class Post extends AbstractRequest {
-
-		public Post(String uri, String version, Entity body) {
-			super(Method.POST, uri, version, body);
-		}
-
-		@Override
-		public Method getMethod() {
-			return Method.POST;
-		}
 	}
 
 	/**

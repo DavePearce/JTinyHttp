@@ -1,19 +1,14 @@
 package jtinyhttp.core;
 
+import java.nio.charset.StandardCharsets;
+
 import jtinyhttp.core.HTTP.Header;
 import jtinyhttp.util.ArbitraryHeader;
 
 public class Headers {
 
-
-	public static Header Host(String value) {
-		return new ArbitraryHeader("Host",value.getBytes());
-	}
-
-
-	public static Header Cookie(String value) {
-		return new ArbitraryHeader("cookie",value.getBytes());
-	}
+	public static final byte[] HOST = "Host: ".getBytes(StandardCharsets.US_ASCII);
+	public static final byte[] COOKIE = "Cookie: ".getBytes(StandardCharsets.US_ASCII);
 
 	// ====================================================
 	// Entity Headers
