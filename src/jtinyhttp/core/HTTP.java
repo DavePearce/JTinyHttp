@@ -7,7 +7,7 @@ import java.net.URI;
 
 import jtinyhttp.util.AbstractRequest;
 
-public class HTTP {
+ublic class HTTP {
 
 	/**
 	 * Represents an arbitrary connection between a client and server which is
