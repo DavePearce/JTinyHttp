@@ -1,11 +1,18 @@
 <project name="wyc" default="build" xmlns:artifact="urn:maven-ant">
 
+    <!-- ================================================================== -->
+  <!-- Setup -->
+  <!-- ================================================================== -->
+
+  <target name="setup">
+    <mkdir dir="bin"/>
+  </target>
 
   <!-- ================================================================== -->
   <!-- Compile -->
   <!-- ================================================================== -->
 
-  <target name="compile">
+  <target name="compile" depends="setup">
     <javac includeantruntime="false"
 	   srcdir="src"
 	   destdir="bin">
